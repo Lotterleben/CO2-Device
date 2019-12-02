@@ -11,6 +11,7 @@ dependencies = [
  "dwm1001 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "heapless 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nb 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nrf52832-hal 0.8.1",
  "panic-halt 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "scd30 0.3.0 (git+https://github.com/sinuss/scd30-rs/)",
 ]
@@ -1000,7 +1001,7 @@ name = "nrf52-hal-common"
 version = "0.8.1"
 dependencies = [
  "cast 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "cortex-m 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cortex-m 0.5.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "embedded-hal 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "fpa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nb 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1028,7 +1029,7 @@ name = "nrf52832-hal"
 version = "0.8.1"
 dependencies = [
  "cast 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "cortex-m 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cortex-m 0.5.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "embedded-hal 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "nb 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "nrf52-hal-common 0.8.1",
