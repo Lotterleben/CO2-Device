@@ -17,10 +17,15 @@ use dwm1001::{
         prelude::*,
         twim::{self, Twim},
         gpio::Level::{High, Low},
+        pwm::{self, Pwm},
     },
+
     DWM1001,
 };
 
+
+
+// use crc_all::Crc;
 
 pub mod lib;
 use crate::lib::led;
@@ -53,6 +58,9 @@ fn main() -> ! {
         green: board.pins.SPIS_MISO.into_push_pull_output(Low),
         blue: board.pins.SPIS_CLK.into_push_pull_output(Low),
     };
+
+    let channels = pwm::Channels {red, green, blue};
+    let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_128);
 
     timer.delay(2_000_000);
 
