@@ -53,23 +53,23 @@ fn main() -> ! {
     let pins = twim::Pins { scl, sda };
     let mut i2c = Twim::new(board.TWIM0, pins, twim::Frequency::K100);
 
-<<<<<<< HEAD
-    let mut leds = LEDs {
-        red: board.pins.SPIS_MOSI.into_push_pull_output(Low),
-        green: board.pins.SPIS_MISO.into_push_pull_output(Low),
-        blue: board.pins.SPIS_CLK.into_push_pull_output(Low),
-    };
-
-    let channels = pwm::Channels {red, green, blue};
-    let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_128);
-=======
     // let red = board.pins.SPIS_MOSI.into_push_pull_output(Low);
     // let green = board.pins.SPIS_MISO.into_push_pull_output(Low);
     // let blue = board.pins.SPIS_CLK.into_push_pull_output(Low);
     //
     // let channels = pwm::Channels {red, green, blue};
     // let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_128);
->>>>>>> go back to older versions
+    let mut red = board.pins.SPIS_MOSI.into_floating_input().degrade();
+    let mut green = board.pins.SPIS_MISO.into_floating_input().degrade();
+    let mut blue = board.pins.SPIS_CLK.into_floating_input().degrade();
+
+    let channels = pwm::Channels {
+        pwm_ch0: red,
+        pwm_ch1: green,
+        pwm_ch2: blue,
+    };
+
+    let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_8);
 
     timer.delay(2_000_000);
 
