@@ -13,7 +13,6 @@ use cortex_m_rt::entry;
 
 // Provides definitions for our development board
 use dwm1001::{
-
     DWM1001,
 };
 
@@ -21,11 +20,7 @@ use nrf52832_hal::{
     prelude::*,
     twim::{self, Twim},
     pwm::{self, Pwm},
-    gpio::Level::Low,
 };
-
-
-use crc_all::Crc;
 
 pub mod lib;
 use crate::lib::led;
@@ -98,7 +93,7 @@ fn main() -> ! {
 
     let mut toggle = false;
 
-    'measuring: loop {
+    '_: loop {
         s.clear();
 
         // send command to get measurement
