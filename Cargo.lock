@@ -474,13 +474,13 @@ version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "740f6e492fc70d11a49d7a9b132cdd76478e2b12ee06d6436f6fa79315afa150"
 dependencies = [
- "cortex-m 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "cortex-m-rt 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "cortex-m-semihosting 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "dw1000 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "embedded-hal 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "embedded-timeout-macros 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "nrf52832-hal 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cortex-m 0.6.1",
+ "cortex-m-rt",
+ "cortex-m-semihosting",
+ "dw1000 0.2.0",
+ "embedded-hal",
+ "embedded-timeout-macros",
+ "nrf52832-hal 0.8.0",
 ]
 
 [[package]]

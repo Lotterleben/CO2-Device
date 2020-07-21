@@ -108,12 +108,7 @@ fn main() -> ! {
         //Basic LED alert
         leds = led::traffic_light(leds, &result.co2);
 
-<<<<<<< HEAD
 
-
-=======
-        
->>>>>>> changed to adapt to api
         let co2 = result.co2;
         let temp = result.temperature;
         let humidity = result.humidity;
