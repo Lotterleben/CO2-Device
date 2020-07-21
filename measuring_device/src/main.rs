@@ -13,14 +13,14 @@ use cortex_m_rt::entry;
 
 // Provides definitions for our development board
 use dwm1001::{
+    nrf52832_hal::{
+        prelude::*,
+        twim::{self, Twim},
+        gpio::Level::{High, Low},
+    },
     DWM1001,
 };
 
-use nrf52832_hal::{
-    prelude::*,
-    twim::{self, Twim},
-    pwm::{self, Pwm},
-};
 
 pub mod lib;
 use crate::lib::led;
@@ -48,23 +48,11 @@ fn main() -> ! {
     let pins = twim::Pins { scl, sda };
     let mut i2c = Twim::new(board.TWIM0, pins, twim::Frequency::K100);
 
-    // let red = board.pins.SPIS_MOSI.into_push_pull_output(Low);
-    // let green = board.pins.SPIS_MISO.into_push_pull_output(Low);
-    // let blue = board.pins.SPIS_CLK.into_push_pull_output(Low);
-    //
-    // let channels = pwm::Channels {red, green, blue};
-    // let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_128);
-    let mut red = board.pins.SPIS_MOSI.into_floating_input().degrade();
-    let mut green = board.pins.SPIS_MISO.into_floating_input().degrade();
-    let mut blue = board.pins.SPIS_CLK.into_floating_input().degrade();
-
-    let channels = pwm::Channels {
-        pwm_ch0: red,
-        pwm_ch1: green,
-        pwm_ch2: blue,
+    let mut leds = LEDs {
+        red: board.pins.SPIS_MOSI.into_push_pull_output(Low),
+        green: board.pins.SPIS_MISO.into_push_pull_output(Low),
+        blue: board.pins.SPIS_CLK.into_push_pull_output(Low),
     };
-
-    let mut pulse = Pwm::new(board.PWM0, channels, pwm::Prescaler::DIV_8);
 
     timer.delay(2_000_000);
 
@@ -93,7 +81,7 @@ fn main() -> ! {
 
     let mut toggle = false;
 
-    '_: loop {
+    'measuring: loop {
         s.clear();
 
         // send command to get measurement
@@ -102,6 +90,7 @@ fn main() -> ! {
 
         //Basic LED alert
         leds = led::traffic_light(leds, &result.co2);
+
 
 
         let co2 = result.co2;
