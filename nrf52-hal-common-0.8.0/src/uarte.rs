@@ -59,7 +59,7 @@ impl<T> Uarte<T> where T: UarteExt {
             let w = w.port().bit(pins.rxd.port);
             w.connect().connected()
         });
-        pins.txd.set_high();
+        pins.txd.set_high().unwrap();
         uarte.psel.txd.write(|w| {
             let w = unsafe { w.pin().bits(pins.txd.pin) };
             #[cfg(feature = "52840")]

@@ -7,6 +7,7 @@ use core::cmp::min;
 pub use crate::target::spim0::frequency::FREQUENCYW as Frequency;
 pub use embedded_hal::spi::{Mode, Phase, Polarity, MODE_0, MODE_1, MODE_2, MODE_3};
 
+use crate::hal::digital::v2::{OutputPin, StatefulOutputPin, InputPin};
 use crate::target::{spim0, SPIM0};
 
 #[cfg(any(feature = "52832", feature = "52840"))]
@@ -328,7 +329,7 @@ impl<T> Spim<T> where T: SpimExt {
             // rx_len:
             rx_buffer.len() as _,
             // chip select callback
-            |cs|{if cs {chip_select.set_low()} else {chip_select.set_high()} }
+            |cs|{if cs {chip_select.set_low().unwrap()} else {chip_select.set_high().unwrap()} }
         )
     }
 
@@ -367,7 +368,7 @@ impl<T> Spim<T> where T: SpimExt {
             tx_buffer.len() as _,
             // Tell the RXD channel it doesn't need to read anything
             0 , 0,
-            |cs|{if cs {chip_select.set_low()} else {chip_select.set_high()} }
+            |cs|{if cs {chip_select.set_low().unwrap()} else {chip_select.set_high().unwrap()} }
         )
     }
 

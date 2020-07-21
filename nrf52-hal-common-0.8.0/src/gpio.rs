@@ -69,7 +69,7 @@ use crate::target::P0;
 #[cfg(feature = "52840")]
 use crate::target::{ P1 };
 
-use crate::hal::digital::{OutputPin, StatefulOutputPin, InputPin};
+use crate::hal::digital::v2::{OutputPin, StatefulOutputPin, InputPin};
 
 impl<MODE> Pin<MODE> {
     /// Convert the pin to be a floating input
@@ -158,8 +158,8 @@ impl<MODE> Pin<MODE> {
         };
 
         match initial_output {
-            Level::Low  => pin.set_low(),
-            Level::High => pin.set_high(),
+            Level::Low  => pin.set_low().expect("into_push_pull_output: could not set pin level"),
+            Level::High => pin.set_high().expect("into_push_pull_output: could not set pin level"),
         }
 
         unsafe {
@@ -199,8 +199,8 @@ impl<MODE> Pin<MODE> {
         };
 
         match initial_output {
-            Level::Low  => pin.set_low(),
-            Level::High => pin.set_high(),
+            Level::Low  => pin.set_low().expect("into_open_drain_output: could not set pin level"),
+            Level::High => pin.set_high().expect("into_open_drain_output: could not set pin level"),
         }
 
         // This is safe, as we restrict our access to the dedicated
@@ -227,70 +227,74 @@ impl<MODE> Pin<MODE> {
 }
 
 impl<MODE> InputPin for Pin<Input<MODE>> {
-    fn is_high(&self) -> bool {
-        !self.is_low()
+    type Error = PhantomData<u8>; // picket at random because unused
+
+    fn is_high(&self) -> Result<bool, PhantomData<u8>> {
+        Ok(!self.is_low().unwrap())
     }
 
-    fn is_low(&self) -> bool {
-        unsafe { (
+    fn is_low(&self) -> Result<bool, PhantomData<u8>> {
+        Ok(unsafe { (
             (*{
                 #[cfg(any(feature = "52810", feature = "52832"))]
                 { P0::ptr() }
                 #[cfg(feature = "52840")]
                 { if !self.port { P0::ptr() } else { P1::ptr() } }
             }).in_.read().bits() & (1 << self.pin)
-        ) == 0 }
+        ) == 0 })
     }
 }
 
 impl<MODE> OutputPin for Pin<Output<MODE>> {
+    type Error = PhantomData<u8>; // picket at random because unused
+
     /// Set the output as high
-    fn set_high(&mut self) {
+    fn set_high(&mut self) -> Result<(), PhantomData<u8>> {
         // NOTE(unsafe) atomic write to a stateless register - TODO(AJM) verify?
         // TODO - I wish I could do something like `.pins$i()`...
-        unsafe {
+        Ok(unsafe {
             (*{
                 #[cfg(any(feature = "52810", feature = "52832"))]
                 { P0::ptr() }
                 #[cfg(feature = "52840")]
                 { if !self.port { P0::ptr() } else { P1::ptr() } }
             }).outset.write(|w| w.bits(1u32 << self.pin));
-        }
+        })
     }
 
     /// Set the output as low
-    fn set_low(&mut self) {
+    fn set_low(&mut self) -> Result<(), PhantomData<u8>> {
         // NOTE(unsafe) atomic write to a stateless register - TODO(AJM) verify?
         // TODO - I wish I could do something like `.pins$i()`...
-        unsafe {
+        Ok(unsafe {
             (*{
                 #[cfg(any(feature = "52810", feature = "52832"))]
                 { P0::ptr() }
                 #[cfg(feature = "52840")]
                 { if !self.port { P0::ptr() } else { P1::ptr() } }
             }).outclr.write(|w| w.bits(1u32 << self.pin));
-        }
+        })
     }
 }
 
 impl<MODE> StatefulOutputPin for Pin<Output<MODE>> {
     /// Is the output pin set as high?
-    fn is_set_high(&self) -> bool {
-        !self.is_set_low()
+    fn is_set_high(&self) -> Result<bool, PhantomData<u8>> {
+        Ok(!self.is_set_low().unwrap())
     }
 
     /// Is the output pin set as low?
-    fn is_set_low(&self) -> bool {
+    fn is_set_low(&self) -> Result<bool, PhantomData<u8>> {
         // NOTE(unsafe) atomic read with no side effects - TODO(AJM) verify?
         // TODO - I wish I could do something like `.pins$i()`...
-        unsafe { (
+        Ok(unsafe { (
             (*{
                 #[cfg(any(feature = "52810", feature = "52832"))]
                 { P0::ptr() }
                 #[cfg(feature = "52840")]
                 { if !self.port { P0::ptr() } else { P1::ptr() } }
             }).out.read().bits() & (1 << self.pin)
-        ) == 0 }
+        ) == 0 })
     }
 }
 
@@ -348,9 +352,9 @@ macro_rules! gpio {
 
             use crate::target;
             use crate::target::$PX;
-            use crate::hal::digital::{OutputPin, StatefulOutputPin, InputPin};
+            use crate::hal::digital::v2::{OutputPin, StatefulOutputPin, InputPin};
 
-            
+
 
             // ===============================================================
             // This chunk allows you to obtain an nrf52-hal gpio from the
@@ -439,8 +443,8 @@ macro_rules! gpio {
                         };
 
                         match initial_output {
-                            Level::Low  => pin.set_low(),
-                            Level::High => pin.set_high(),
+                            Level::Low  => pin.set_low().expect("into_push_pull_output: could not set pin level"),
+                            Level::High => pin.set_high().expect("into_push_pull_output: could not set pin level"),
                         }
 
                         unsafe { &(*$PX::ptr()).pin_cnf[$i] }.write(|w| {
@@ -469,8 +473,8 @@ macro_rules! gpio {
                         };
 
                         match initial_output {
-                            Level::Low  => pin.set_low(),
-                            Level::High => pin.set_high(),
+                            Level::Low  => pin.set_low().expect("into_open_drain_output: could not set pin level"),
+                            Level::High => pin.set_high().expect("into_open_drain_output: could not set pin level"),
                         }
 
                         // This is safe, as we restrict our access to the
@@ -502,42 +506,46 @@ macro_rules! gpio {
                 }
 
                 impl<MODE> InputPin for $PXi<Input<MODE>> {
-                    fn is_high(&self) -> bool {
-                        !self.is_low()
+                    type Error = PhantomData<u8>; // picket at random because unused
+
+                    fn is_high(&self) -> Result<bool, PhantomData<u8>> {
+                        Ok(!self.is_low().unwrap())
                     }
 
-                    fn is_low(&self) -> bool {
-                        unsafe { ((*$PX::ptr()).in_.read().bits() & (1 << $i)) == 0 }
+                    fn is_low(&self) -> Result<bool, PhantomData<u8>> {
+                        Ok(unsafe { ((*$PX::ptr()).in_.read().bits() & (1 << $i)) == 0 })
                     }
                 }
 
                 impl<MODE> OutputPin for $PXi<Output<MODE>> {
+                    type Error = PhantomData<u8>; // picket at random because unused
+
                     /// Set the output as high
-                    fn set_high(&mut self) {
+                    fn set_high(&mut self) -> Result<(), PhantomData<u8>> {
                         // NOTE(unsafe) atomic write to a stateless register - TODO(AJM) verify?
                         // TODO - I wish I could do something like `.pins$i()`...
-                        unsafe { (*$PX::ptr()).outset.write(|w| w.bits(1u32 << $i)); }
+                        Ok(unsafe { (*$PX::ptr()).outset.write(|w| w.bits(1u32 << $i)); })
                     }
 
                     /// Set the output as low
-                    fn set_low(&mut self) {
+                    fn set_low(&mut self) -> Result<(), PhantomData<u8>>  {
                         // NOTE(unsafe) atomic write to a stateless register - TODO(AJM) verify?
                         // TODO - I wish I could do something like `.pins$i()`...
-                        unsafe { (*$PX::ptr()).outclr.write(|w| w.bits(1u32 << $i)); }
+                        Ok(unsafe { (*$PX::ptr()).outclr.write(|w| w.bits(1u32 << $i)); })
                     }
                 }
 
                 impl<MODE> StatefulOutputPin for $PXi<Output<MODE>> {
                     /// Is the output pin set as high?
-                    fn is_set_high(&self) -> bool {
-                        !self.is_set_low()
+                    fn is_set_high(&self) -> Result<bool, PhantomData<u8>> {
+                        Ok(!self.is_set_low().unwrap())
                     }
 
                     /// Is the output pin set as low?
-                    fn is_set_low(&self) -> bool {
+                    fn is_set_low(&self) -> Result<bool, PhantomData<u8>> {
                         // NOTE(unsafe) atomic read with no side effects - TODO(AJM) verify?
                         // TODO - I wish I could do something like `.pins$i()`...
-                        unsafe { ((*$PX::ptr()).out.read().bits() & (1 << $i)) == 0 }
+                        Ok(unsafe { ((*$PX::ptr()).out.read().bits() & (1 << $i)) == 0 })
                     }
                 }
             )+
